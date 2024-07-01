@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -18,116 +18,138 @@ import {
 } from "react-icons/si";
 
 const AboutMe: React.FC = () => {
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2,
-        delayChildren: 0.3,
+  const containerVariants = useMemo(
+    () => ({
+      hidden: { opacity: 0 },
+      visible: {
+        opacity: 1,
+        transition: {
+          staggerChildren: 0.1,
+          delayChildren: 0.2,
+        },
       },
-    },
-  };
+    }),
+    []
+  );
 
-  const itemVariants = {
-    hidden: { y: 50, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: {
-        type: "spring",
-        stiffness: 100,
+  const itemVariants = useMemo(
+    () => ({
+      hidden: { y: 20, opacity: 0 },
+      visible: {
+        y: 0,
+        opacity: 1,
+        transition: {
+          type: "spring",
+          stiffness: 80,
+        },
       },
-    },
-  };
+    }),
+    []
+  );
 
-  const iconVariants = {
-    hidden: { scale: 0, rotate: -180 },
-    visible: {
-      scale: 1,
-      rotate: 0,
-      transition: {
-        type: "spring",
-        stiffness: 200,
-        damping: 10,
+  const iconVariants = useMemo(
+    () => ({
+      hidden: { scale: 0, rotate: -90 },
+      visible: {
+        scale: 1,
+        rotate: 0,
+        transition: {
+          type: "spring",
+          stiffness: 150,
+          damping: 8,
+        },
       },
-    },
-  };
+    }),
+    []
+  );
 
-  const floatingAnimation = {
-    y: ["-10px", "10px"],
-    transition: {
-      y: {
-        duration: 2,
-        repeat: Infinity,
-        repeatType: "reverse",
-        ease: "easeInOut",
+  const floatingAnimation = useMemo(
+    () => ({
+      y: ["-5px", "5px"],
+      transition: {
+        y: {
+          duration: 1.5,
+          repeat: Infinity,
+          repeatType: "reverse",
+          ease: "easeInOut",
+        },
       },
-    },
-  };
+    }),
+    []
+  );
 
   const starRef = useRef<HTMLCanvasElement | null>(null);
 
-  useEffect(() => {
+  const drawStars = useCallback(() => {
     const canvas = starRef.current;
     if (!canvas) return;
 
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    let animationFrameId: number;
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 
-    type Star = {
+    const stars: Array<{
       x: number;
       y: number;
       radius: number;
       vx: number;
       vy: number;
-    };
-
-    const stars: Star[] = [];
-    const numStars = 100;
+    }> = [];
+    const numStars = 50;
 
     for (let i = 0; i < numStars; i++) {
       stars.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
         radius: Math.random() * 1.5,
-        vx: Math.floor(Math.random() * 50) - 25,
-        vy: Math.floor(Math.random() * 50) - 25,
+        vx: (Math.random() - 0.5) * 0.5,
+        vy: (Math.random() - 0.5) * 0.5,
       });
     }
 
-    function draw() {
-      if (!ctx) return;
-      if (!canvas) return;
+    function animate() {
+      if (!ctx || !canvas) return;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.globalCompositeOperation = "lighter";
 
-      for (let i = 0, x = stars.length; i < x; i++) {
-        const s = stars[i];
-
+      stars.forEach((star) => {
         ctx.fillStyle = "#fff";
         ctx.beginPath();
-        ctx.arc(s.x, s.y, s.radius, 0, 2 * Math.PI);
+        ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
         ctx.fill();
 
-        s.x += s.vx / 30;
-        s.y += s.vy / 30;
+        star.x += star.vx;
+        star.y += star.vy;
 
-        if (s.x < 0 || s.x > canvas.width) s.vx = -s.vx;
-        if (s.y < 0 || s.y > canvas.height) s.vy = -s.vy;
-      }
+        if (star.x < 0 || star.x > canvas.width) star.vx = -star.vx;
+        if (star.y < 0 || star.y > canvas.height) star.vy = -star.vy;
+      });
 
-      animationFrameId = requestAnimationFrame(draw);
+      requestAnimationFrame(animate);
     }
 
-    draw();
-
-    return () => {
-      cancelAnimationFrame(animationFrameId);
-    };
+    animate();
   }, []);
+
+  useEffect(() => {
+    drawStars();
+    window.addEventListener("resize", drawStars);
+    return () => window.removeEventListener("resize", drawStars);
+  }, [drawStars]);
+
+  const technologies = useMemo(
+    () => [
+      { icon: FaReact, text: "React.js" },
+      { icon: FaNodeJs, text: "Node.js" },
+      { icon: SiJavascript, text: "JavaScript" },
+      { icon: SiTypescript, text: "TypeScript" },
+      { icon: SiNextdotjs, text: "Next.js" },
+      { icon: SiPostgresql, text: "PostgreSQL" },
+    ],
+    []
+  );
 
   return (
     <motion.div
@@ -136,11 +158,7 @@ const AboutMe: React.FC = () => {
       animate="visible"
       variants={containerVariants}
     >
-      <canvas
-        ref={starRef}
-        className="absolute inset-0 z-0"
-        style={{ width: "100%", height: "100%" }}
-      />
+      <canvas ref={starRef} className="absolute inset-0 z-0" />
 
       <div className="relative z-10 max-w-3xl mx-auto">
         <motion.h1
@@ -162,28 +180,22 @@ const AboutMe: React.FC = () => {
                   <span className="text-cyan-400 mr-2">👨‍💻</span> Nikhil Sahni
                 </motion.h2>
                 <p className="mb-6 code-font leading-relaxed text-sm sm:text-base">
-                  Hello, I am Nikhil Sahni,20 years old and an Innovative Full
+                  Hello, I am Nikhil Sahni, 20 years old and an Innovative Full
                   Stack Developer with a strong foundation in computer science,
                   seeking to leverage expertise in React.js, Node.js, and modern
                   web technologies to drive impactful solutions. Passionate
                   about creating scalable, user-centric applications with a keen
                   eye for detail and commitment to clean, efficient code. If you
-                  liked my profile and interested to work...kindly contact me!
+                  liked my profile and are interested in working together,
+                  kindly contact me!
                 </p>
                 <div className="flex flex-wrap gap-3">
-                  {[
-                    { icon: FaReact, text: "React.js" },
-                    { icon: FaNodeJs, text: "Node.js" },
-                    { icon: SiJavascript, text: "JavaScript" },
-                    { icon: SiTypescript, text: "TypeScript" },
-                    { icon: SiNextdotjs, text: "Next.js" },
-                    { icon: SiPostgresql, text: "PostgreSQL" },
-                  ].map((tech, index) => (
+                  {technologies.map((tech, index) => (
                     <motion.div
                       key={index}
                       variants={iconVariants}
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
                     >
                       <Badge
                         variant="secondary"
@@ -209,40 +221,42 @@ const AboutMe: React.FC = () => {
                   Information
                 </motion.h2>
                 <ul className="space-y-4 code-font text-sm sm:text-base">
-                  <motion.li
-                    className="flex items-center"
-                    whileHover={{ x: 10 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                  >
-                    <FaPhoneAlt className="text-cyan-400 mr-2" />
-                    <a
-                      href="tel:+918800244926"
-                      className="hover:text-cyan-400 transition-colors"
+                  {[
+                    {
+                      icon: FaPhoneAlt,
+                      text: "+91 8800244926",
+                      href: "tel:+918800244926",
+                    },
+                    {
+                      icon: FaEnvelope,
+                      text: "nikhil.sahni321@gmail.com",
+                      href: "mailto:nikhil.sahni321@gmail.com",
+                    },
+                    { icon: FaMapMarkerAlt, text: "Delhi NCR, India" },
+                  ].map((item, index) => (
+                    <motion.li
+                      key={index}
+                      className="flex items-center"
+                      whileHover={{ x: 5 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 300,
+                        damping: 10,
+                      }}
                     >
-                      +91 8800244926
-                    </a>
-                  </motion.li>
-                  <motion.li
-                    className="flex items-center"
-                    whileHover={{ x: 10 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                  >
-                    <FaEnvelope className="text-cyan-400 mr-2" />
-                    <a
-                      href="mailto:nikhil.sahni321@gmail.com"
-                      className="hover:text-cyan-400 transition-colors"
-                    >
-                      nikhil.sahni321@gmail.com
-                    </a>
-                  </motion.li>
-                  <motion.li
-                    className="flex items-center"
-                    whileHover={{ x: 10 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                  >
-                    <FaMapMarkerAlt className="text-cyan-400 mr-2" />
-                    Delhi NCR, India
-                  </motion.li>
+                      <item.icon className="text-cyan-400 mr-2" />
+                      {item.href ? (
+                        <a
+                          href={item.href}
+                          className="hover:text-cyan-400 transition-colors"
+                        >
+                          {item.text}
+                        </a>
+                      ) : (
+                        item.text
+                      )}
+                    </motion.li>
+                  ))}
                 </ul>
               </CardContent>
             </Card>

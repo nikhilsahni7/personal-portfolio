@@ -1,6 +1,6 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence, useAnimation } from "framer-motion";
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   FaInstagram,
   FaFacebookF,
@@ -9,31 +9,7 @@ import {
 } from "react-icons/fa";
 import { FaSquareXTwitter } from "react-icons/fa6";
 import { Button } from "@/components/ui/button";
-import { useInView } from "react-intersection-observer";
 import { useRouter } from "next/navigation";
-
-const textVariants = {
-  initial: { opacity: 0, y: 50 },
-  animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -50 },
-};
-
-const socialVariants = {
-  initial: { scale: 0, rotate: -180 },
-  animate: (i: any) => ({
-    scale: 1,
-    rotate: 0,
-    transition: { delay: i * 0.1, type: "spring", stiffness: 260, damping: 20 },
-  }),
-  hover: { scale: 1.2, rotate: 15, transition: { duration: 0.3 } },
-  tap: { scale: 0.9, rotate: -15, transition: { duration: 0.3 } },
-};
-
-const buttonVariants = {
-  initial: { scale: 1 },
-  hover: { scale: 1.05, transition: { duration: 0.3 } },
-  tap: { scale: 0.95, transition: { duration: 0.3 } },
-};
 
 const titles = [
   "Full Stack Developer",
@@ -41,107 +17,90 @@ const titles = [
   "Passionate Software Engineer",
 ];
 
+const socialMediaLinks = [
+  {
+    Icon: FaInstagram,
+    url: "https://www.instagram.com/iam.nikhil7?igsh=cTFyZDh0NXk0eGNs",
+  },
+  {
+    Icon: FaFacebookF,
+    url: "https://www.instagram.com/iam.nikhil7?igsh=cTFyZDh0NXk0eGNs",
+  },
+  {
+    Icon: FaSquareXTwitter,
+    url: "https://x.com/Nikhilllsahni?t=GwfnmO3UaBbk5W5Fk2FjsQ&s=09",
+  },
+  { Icon: FaGithub, url: "https://github.com/nikhilsahni7" },
+  {
+    Icon: FaLinkedinIn,
+    url: "https://www.linkedin.com/in/nikhil-sahni-655518222?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
+  },
+];
+
 const Hero = () => {
   const [titleIndex, setTitleIndex] = useState(0);
-  const ref = useRef(null);
-  const controls = useAnimation();
-  const [inViewRef, inView] = useInView({
-    triggerOnce: true,
-    threshold: 0.1,
-  });
-
-  useEffect(() => {
-    if (inView) {
-      controls.start("visible");
-    }
-  }, [controls, inView]);
 
   useEffect(() => {
     const interval = setInterval(() => {
       setTitleIndex((prevIndex) => (prevIndex + 1) % titles.length);
     }, 10000);
-
     return () => clearInterval(interval);
   }, []);
 
   return (
     <motion.section
-      ref={ref}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 1 }}
       className="min-h-screen bg-[#050505] text-white flex flex-col justify-center items-center relative overflow-hidden px-4 sm:px-6 lg:px-8"
     >
-      <BackgroundAnimation />
-      <GlitchEffect />
-      <ParticleEffect />
-      <NeonEffect />
-      <LaserEffect />
-
-      <motion.h1
-        initial={{ opacity: 0, scale: 0.5 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 1, delay: 0.5 }}
-        className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-4 z-10 text-center code-font glitch-text"
-        data-text="Nikhil Sahni"
-      >
-        Nikhil Sahni
-      </motion.h1>
-
-      <AnimatePresence mode="wait">
-        <motion.h2
-          key={titleIndex}
-          variants={textVariants}
-          initial="initial"
-          animate="animate"
-          exit="exit"
-          transition={{ duration: 0.5 }}
-          className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-semibold mb-8 z-10 text-center text-gray-300 code-font"
-        >
-          {titles[titleIndex]}
-        </motion.h2>
-      </AnimatePresence>
-
-      <ProfileImage />
-      <SocialIcons />
-      <CTAButtons />
-      <Navigation />
-      <ScrollIndicator />
+      <BackgroundEffects />
+      <Content titleIndex={titleIndex} />
     </motion.section>
   );
 };
 
-const BackgroundAnimation = () => {
-  if (typeof window === "undefined") return null;
-  return (
-    <motion.div className="absolute inset-0 pointer-events-none">
-      {[...Array(200)].map((_, index) => (
-        <motion.div
-          key={index}
-          className="absolute bg-white rounded-full"
-          initial={{
-            x: Math.random() * window.innerWidth,
-            y: Math.random() * window.innerHeight,
-            scale: Math.random() * 0.5 + 0.5,
-          }}
-          animate={{
-            y: [0, window.innerHeight],
-            opacity: [0, 1, 0],
-            transition: {
-              duration: Math.random() * 10 + 10,
-              repeat: Infinity,
-              ease: "linear",
-            },
-          }}
-          style={{
-            width: Math.random() * 2 + 1,
-            height: Math.random() * 2 + 1,
-          }}
-        />
-      ))}
-    </motion.div>
-  );
-};
+const BackgroundEffects = () => (
+  <>
+    <GlitchEffect />
+    <ParticleEffect />
+    <NeonEffect />
+    <LaserEffect />
+  </>
+);
+
+const Content = ({ titleIndex }: React.Key | any) => (
+  <>
+    <motion.h1
+      initial={{ opacity: 0, scale: 0.5 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 1, delay: 0.5 }}
+      className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-4 z-10 text-center code-font glitch-text"
+      data-text="Nikhil Sahni"
+    >
+      Nikhil Sahni
+    </motion.h1>
+
+    <AnimatePresence mode="wait">
+      <motion.h2
+        key={titleIndex}
+        initial={{ opacity: 0, y: 50 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -50 }}
+        transition={{ duration: 0.5 }}
+        className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-semibold mb-8 z-10 text-center text-gray-300 code-font"
+      >
+        {titles[titleIndex]}
+      </motion.h2>
+    </AnimatePresence>
+
+    <ProfileImage />
+    <SocialIcons />
+    <CTAButtons />
+    <Navigation />
+    <ScrollIndicator />
+  </>
+);
 
 const GlitchEffect = () => (
   <style jsx global>{`
@@ -189,39 +148,43 @@ const GlitchEffect = () => (
   `}</style>
 );
 
-const ParticleEffect = (window: any) => {
-  if (typeof window === "undefined") return null;
-  return (
-    <motion.div className="absolute inset-0 pointer-events-none">
-      {[...Array(150)].map((_, index) => (
-        <motion.div
-          key={index}
-          className="absolute bg-white rounded-full"
-          initial={{
-            x: Math.random() * window.innerWidth,
-            y: Math.random() * window.innerHeight,
-            scale: Math.random() * 0.5 + 0.5,
-          }}
-          animate={{
-            x: Math.random() * window.innerWidth,
-            y: Math.random() * window.innerHeight,
-            scale: Math.random() * 0.5 + 0.5,
-            opacity: [0, 1, 0],
-          }}
-          transition={{
-            duration: Math.random() * 20 + 10,
-            repeat: Infinity,
-            ease: "linear",
-          }}
-          style={{
-            width: Math.random() * 3 + 1,
-            height: Math.random() * 3 + 1,
-          }}
-        />
-      ))}
-    </motion.div>
-  );
-};
+const ParticleEffect = () => (
+  <motion.div className="absolute inset-0 pointer-events-none">
+    {[...Array(50)].map((_, index) => (
+      <motion.div
+        key={index}
+        className="absolute bg-white rounded-full"
+        initial={{
+          x:
+            Math.random() *
+            (typeof window !== "undefined" ? window.innerWidth : 1000),
+          y:
+            Math.random() *
+            (typeof window !== "undefined" ? window.innerHeight : 1000),
+          scale: Math.random() * 0.5 + 0.5,
+        }}
+        animate={{
+          x:
+            Math.random() *
+            (typeof window !== "undefined" ? window.innerWidth : 1000),
+          y:
+            Math.random() *
+            (typeof window !== "undefined" ? window.innerHeight : 1000),
+          opacity: [0, 1, 0],
+        }}
+        transition={{
+          duration: Math.random() * 20 + 10,
+          repeat: Infinity,
+          ease: "linear",
+        }}
+        style={{
+          width: Math.random() * 3 + 1,
+          height: Math.random() * 3 + 1,
+        }}
+      />
+    ))}
+  </motion.div>
+);
 
 const NeonEffect = () => (
   <motion.div
@@ -324,25 +287,6 @@ const CyberCircle = () => (
   </motion.svg>
 );
 
-const socialMediaLinks = [
-  {
-    Icon: FaInstagram,
-    url: "https://www.instagram.com/iam.nikhil7?igsh=cTFyZDh0NXk0eGNs",
-  },
-  {
-    Icon: FaFacebookF,
-    url: "https://www.instagram.com/iam.nikhil7?igsh=cTFyZDh0NXk0eGNs",
-  },
-  {
-    Icon: FaSquareXTwitter,
-    url: "https://x.com/Nikhilllsahni?t=GwfnmO3UaBbk5W5Fk2FjsQ&s=09",
-  },
-  { Icon: FaGithub, url: "https://github.com/nikhilsahni7" },
-  {
-    Icon: FaLinkedinIn,
-    url: "https://www.linkedin.com/in/nikhil-sahni-655518222?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
-  },
-];
 const SocialIcons = () => (
   <motion.div
     className="flex space-x-4 sm:space-x-6 mb-8 sm:mb-12 z-10"
@@ -356,12 +300,16 @@ const SocialIcons = () => (
         href={url}
         target="_blank"
         rel="noopener noreferrer"
-        variants={socialVariants}
-        initial="initial"
-        animate="animate"
-        whileHover="hover"
-        whileTap="tap"
-        custom={index}
+        initial={{ scale: 0, rotate: -180 }}
+        animate={{ scale: 1, rotate: 0 }}
+        whileHover={{ scale: 1.2, rotate: 15 }}
+        whileTap={{ scale: 0.9, rotate: -15 }}
+        transition={{
+          delay: index * 0.1,
+          type: "spring",
+          stiffness: 260,
+          damping: 20,
+        }}
         className="text-gray-400 hover:text-cyan-500 transition-colors relative group"
       >
         <Icon size={24} className="sm:text-2xl md:text-3xl" />
@@ -385,54 +333,37 @@ const CTAButtons = () => {
       transition={{ duration: 1, delay: 1.2 }}
       className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 z-10 w-full max-w-xs sm:max-w-md"
     >
-      <motion.div
-        variants={buttonVariants}
-        whileHover="hover"
-        whileTap="tap"
-        className="w-full sm:w-1/2"
+      <Button
+        onClick={() => router.push("/projects")}
+        size="lg"
+        className="w-full bg-cyan-500 text-black hover:bg-cyan-600 transition-colors duration-300 px-4 sm:px-8 py-2 sm:py-3 rounded-full font-semibold text-base sm:text-lg code-font relative overflow-hidden group"
       >
-        <Button
-          onClick={() => {
-            router.push("/projects");
-          }}
-          size="lg"
-          className="w-full bg-cyan-500 text-black hover:bg-cyan-600 transition-colors duration-300 px-4 sm:px-8 py-2 sm:py-3 rounded-full font-semibold text-base sm:text-lg code-font relative overflow-hidden group"
-        >
-          <span className="relative z-10">View Projects</span>
-          <motion.div
-            className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-blue-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-            initial={{ x: "-100%" }}
-            whileHover={{ x: 0 }}
-            transition={{ duration: 0.3 }}
-          />
-        </Button>
-      </motion.div>
-      <motion.div
-        variants={buttonVariants}
-        whileHover="hover"
-        whileTap="tap"
-        className="w-full sm:w-1/2"
+        <span className="relative z-10">View Projects</span>
+        <motion.div
+          className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-blue-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+          initial={{ x: "-100%" }}
+          whileHover={{ x: 0 }}
+          transition={{ duration: 0.3 }}
+        />
+      </Button>
+      <Button
+        onClick={() => router.push("/contact")}
+        variant="outline"
+        size="lg"
+        className="w-full text-cyan-500 code-font hover:text-cyan-400 border-2 border-cyan-500 hover:border-cyan-400 transition-colors duration-300 px-4 sm:px-8 py-2 sm:py-3 rounded-full font-semibold text-base sm:text-lg relative overflow-hidden group"
       >
-        <Button
-          onClick={() => {
-            router.push("/contact");
-          }}
-          variant="outline"
-          size="lg"
-          className="w-full text-cyan-500 code-font hover:text-cyan-400 border-2 border-cyan-500 hover:border-cyan-400 transition-colors duration-300 px-4 sm:px-8 py-2 sm:py-3 rounded-full font-semibold text-base sm:text-lg relative overflow-hidden group"
-        >
-          <span className="relative z-10">Contact Me</span>
-          <motion.div
-            className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 opacity-0 group-hover:opacity-20 transition-opacity duration-300"
-            initial={{ x: "100%" }}
-            whileHover={{ x: 0 }}
-            transition={{ duration: 0.3 }}
-          />
-        </Button>
-      </motion.div>
+        <span className="relative z-10">Contact Me</span>
+        <motion.div
+          className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 opacity-0 group-hover:opacity-20 transition-opacity duration-300"
+          initial={{ x: "100%" }}
+          whileHover={{ x: 0 }}
+          transition={{ duration: 0.3 }}
+        />
+      </Button>
     </motion.div>
   );
 };
+
 const Navigation = () => (
   <motion.nav
     className="absolute bottom-4 left-0 right-0 flex justify-center space-x-4 sm:space-x-8 z-20"
