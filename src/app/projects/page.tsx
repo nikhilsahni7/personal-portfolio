@@ -57,6 +57,23 @@ const Projects: React.FC = () => {
 
   const projects: Project[] = [
     {
+      title: "Skill-Bridge",
+      description:
+        "Developed an online  Platform for Clients and freelancers to connect with each other and work on projects and grow there business.",
+      technologies: [
+        "Next.js",
+        "Web Sockets",
+        "PostgreSQL",
+        "ShadCn UI",
+        "Tailwind CSS",
+        "framer-motion",
+        "Prisma",
+        "next-auth",
+      ],
+      link: "https://skill-bridg.vercel.app",
+      imagePath: "/skill-bridge.png",
+    },
+    {
       title: "Study-Point",
       description:
         "Developed a full-stack e-learning platform using Next.js and PostgreSQL, serving over 500 students.",
